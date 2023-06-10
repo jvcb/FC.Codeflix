@@ -90,4 +90,48 @@ public class CategoryTest
 
         Assert.Equal("Description should not be empty or null", exception.Message);
     }
+
+    [Theory(DisplayName = nameof(InstantiateErrorWhenNameIsLessThan3Characters))]
+    [Trait("Domain", "Category - Aggregates")]
+    [InlineData("12")]
+    [InlineData("ab")]
+    public void InstantiateErrorWhenNameIsLessThan3Characters(string invalidName)
+    {
+        Action action =
+            () => new Category(invalidName, "Category Valid Description");
+
+        var exception = Assert.Throws<EntityValidationException>(action);
+
+        Assert.Equal("Name should be at least 3 characters long", exception.Message);
+    }
+
+    [Fact(DisplayName = nameof(InstantiateErrorWhenNameIsGreatherThan255Characters))]
+    [Trait("Domain", "Category - Aggregates")]
+    public void InstantiateErrorWhenNameIsGreatherThan255Characters()
+    {
+        var invalidName = String.Join(null, 
+            Enumerable.Range(0, 256).Select(_ => "a").ToList());
+
+        Action action =
+            () => new Category(invalidName, "Category Valid Description");
+
+        var exception = Assert.Throws<EntityValidationException>(action);
+
+        Assert.Equal("Name should be less or equal 255 characters long", exception.Message);
+    }
+
+    [Fact(DisplayName = nameof(InstantiateErrorWhenDescriptionIsGreatherThan10_000Characters))]
+    [Trait("Domain", "Category - Aggregates")]
+    public void InstantiateErrorWhenDescriptionIsGreatherThan10_000Characters()
+    {
+        var invalidDescription = String.Join(null,
+            Enumerable.Range(0, 10_001).Select(_ => "a").ToList());
+
+        Action action =
+            () => new Category("Category Valid Name", invalidDescription);
+
+        var exception = Assert.Throws<EntityValidationException>(action);
+
+        Assert.Equal("Description should be less or equal 10_000 characters long", exception.Message);
+    }
 }
